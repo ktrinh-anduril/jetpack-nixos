@@ -315,6 +315,12 @@ in
           defaultText = lib.literalExpression "config.boot.initrd.availableKernelModules";
           description = "Additional kernel modules to be loaded during the initrd flashing method.";
         };
+
+        initrdFlashUsbGadget = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Whether to set up a USB gadget serial console during the flashing that can be used to track progress";
+        };
       };
 
       flashScript = mkOption {

@@ -86,7 +86,7 @@ final: prev: (
       flashInitrd =
         let
           spiModules = if lib.versions.majorMinor config.system.build.kernel.version == "5.10" then [ "qspi_mtd" "spi_tegra210_qspi" "at24" "spi_nor" ] else [ "mtdblock" "spi_tegra210_quad" ];
-          usbModules = if lib.versions.majorMinor config.system.build.kernel.version == "5.10" then [ ] else [ "libcomposite" "udc-core" "tegra-xudc" "xhci-tegra" "u_serial" "usb_f_acm" ];
+          usbModules = if !cfg.flashScriptOverrides.initrdFlashUsbGadget || lib.versions.majorMinor config.system.build.kernel.version == "5.10" then [ ] else [ "libcomposite" "udc-core" "tegra-xudc" "xhci-tegra" "u_serial" "usb_f_acm" ];
           modules = spiModules ++ usbModules ++ cfg.flashScriptOverrides.additionalInitrdFlashModules;
           modulesClosure = prev.makeModulesClosure {
             rootModules = modules;
@@ -111,7 +111,7 @@ final: prev: (
             done
 
             mount -t configfs none /sys/kernel/config
-            if [ -e /sys/kernel/config/usb_gadget ] ; then
+            if ${lib.boolToString cfg.flashScriptOverrides.initrdFlashUsbGadget} && [ -e /sys/kernel/config/usb_gadget ] ; then
               # https://origin.kernel.org/doc/html/v5.10/usb/gadget_configfs.html
               gadget=/sys/kernel/config/usb_gadget/g.1
               mkdir $gadget
